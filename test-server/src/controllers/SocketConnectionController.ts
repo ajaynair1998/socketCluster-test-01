@@ -17,10 +17,7 @@ const socketController = {
 				for await (let rpc of socket.procedure("join-game")) {
 					console.log(rpc.data);
 					let value = socket.isSubscribed("channel-one");
-					console.log(
-						"🚀 ~ file: SocketConnectionController.js ~ line 17 ~ forawait ~ value",
-						value
-					);
+					console.log("is subscribed", value);
 					await agServer.exchange.transmitPublish(
 						"channel-one",
 						"This is some data"
