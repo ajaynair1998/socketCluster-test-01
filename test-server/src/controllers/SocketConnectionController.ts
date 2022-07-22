@@ -1,7 +1,10 @@
-const { agServer } = require("../../server");
+import AGServer from "socketcluster-server";
 
-module.exports = {
-	main: async (socket, agServer) => {
+const socketController = {
+	main: async (
+		socket: AGServer.AGServerSocket,
+		agServer: AGServer.AGServer
+	): Promise<any> => {
 		try {
 			let exchange = agServer.exchange;
 			let clients = agServer.clients;
@@ -13,12 +16,15 @@ module.exports = {
 			(async () => {
 				for await (let rpc of socket.procedure("join-game")) {
 					console.log(rpc.data);
-					let value = await socket.isSubscribed("channel-one");
+					let value = socket.isSubscribed("channel-one");
 					console.log(
 						"🚀 ~ file: SocketConnectionController.js ~ line 17 ~ forawait ~ value",
 						value
 					);
-					agServer.exchange.transmitPublish("channel-one", "This is some data");
+					await agServer.exchange.transmitPublish(
+						"channel-one",
+						"This is some data"
+					);
 					rpc.end("success");
 				}
 			})();
@@ -27,3 +33,4 @@ module.exports = {
 		}
 	},
 };
+export default socketController;

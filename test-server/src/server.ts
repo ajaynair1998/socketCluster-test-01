@@ -1,13 +1,14 @@
-const http = require("http");
-const eetase = require("eetase");
-const socketClusterServer = require("socketcluster-server");
-const express = require("express");
-const serveStatic = require("serve-static");
-const path = require("path");
-const morgan = require("morgan");
-const uuid = require("uuid");
-const sccBrokerClient = require("scc-broker-client");
-const { main } = require("./src/controllers/SocketConnectionController");
+import http from "http";
+import eetase from "eetase";
+import socketClusterServer from "socketcluster-server";
+import express from "express";
+import serveStatic from "serve-static";
+import path from "path";
+import morgan from "morgan";
+import { v4 } from "uuid";
+import sccBrokerClient from "scc-broker-client";
+import { SCCBrokerClientOptions } from "scc-broker-client";
+import socketController from "./controllers/SocketConnectionController";
 
 const ENVIRONMENT = process.env.ENV || "dev";
 const SOCKETCLUSTER_PORT = process.env.SOCKETCLUSTER_PORT || 8000;
@@ -16,24 +17,24 @@ const SOCKETCLUSTER_SOCKET_CHANNEL_LIMIT =
 	Number(process.env.SOCKETCLUSTER_SOCKET_CHANNEL_LIMIT) || 1000;
 const SOCKETCLUSTER_LOG_LEVEL = process.env.SOCKETCLUSTER_LOG_LEVEL || 2;
 
-const SCC_INSTANCE_ID = uuid.v4();
+const SCC_INSTANCE_ID = v4();
 const SCC_STATE_SERVER_HOST = process.env.SCC_STATE_SERVER_HOST || null;
-const SCC_STATE_SERVER_PORT = process.env.SCC_STATE_SERVER_PORT || null;
-const SCC_MAPPING_ENGINE = process.env.SCC_MAPPING_ENGINE || null;
-const SCC_CLIENT_POOL_SIZE = process.env.SCC_CLIENT_POOL_SIZE || null;
-const SCC_AUTH_KEY = process.env.SCC_AUTH_KEY || null;
-const SCC_INSTANCE_IP = process.env.SCC_INSTANCE_IP || null;
-const SCC_INSTANCE_IP_FAMILY = process.env.SCC_INSTANCE_IP_FAMILY || null;
+const SCC_STATE_SERVER_PORT = process.env.SCC_STATE_SERVER_PORT || undefined;
+const SCC_MAPPING_ENGINE = process.env.SCC_MAPPING_ENGINE || undefined;
+const SCC_CLIENT_POOL_SIZE = process.env.SCC_CLIENT_POOL_SIZE || undefined;
+const SCC_AUTH_KEY = process.env.SCC_AUTH_KEY || undefined;
+const SCC_INSTANCE_IP = process.env.SCC_INSTANCE_IP || undefined;
+const SCC_INSTANCE_IP_FAMILY = process.env.SCC_INSTANCE_IP_FAMILY || undefined;
 const SCC_STATE_SERVER_CONNECT_TIMEOUT =
-	Number(process.env.SCC_STATE_SERVER_CONNECT_TIMEOUT) || null;
+	Number(process.env.SCC_STATE_SERVER_CONNECT_TIMEOUT) || undefined;
 const SCC_STATE_SERVER_ACK_TIMEOUT =
-	Number(process.env.SCC_STATE_SERVER_ACK_TIMEOUT) || null;
+	Number(process.env.SCC_STATE_SERVER_ACK_TIMEOUT) || undefined;
 const SCC_STATE_SERVER_RECONNECT_RANDOMNESS =
-	Number(process.env.SCC_STATE_SERVER_RECONNECT_RANDOMNESS) || null;
+	Number(process.env.SCC_STATE_SERVER_RECONNECT_RANDOMNESS) || undefined;
 const SCC_PUB_SUB_BATCH_DURATION =
-	Number(process.env.SCC_PUB_SUB_BATCH_DURATION) || null;
+	Number(process.env.SCC_PUB_SUB_BATCH_DURATION) || undefined;
 const SCC_BROKER_RETRY_DELAY =
-	Number(process.env.SCC_BROKER_RETRY_DELAY) || null;
+	Number(process.env.SCC_BROKER_RETRY_DELAY) || undefined;
 
 let agOptions = {};
 
@@ -96,7 +97,7 @@ if (SOCKETCLUSTER_LOG_LEVEL >= 2) {
 	})();
 }
 
-function colorText(message, color) {
+function colorText(message: string, color: number) {
 	if (color) {
 		return `\x1b[${color}m${message}\x1b[0m`;
 	}
@@ -107,14 +108,15 @@ if (SCC_STATE_SERVER_HOST) {
 	// Setup broker client to connect to SCC.
 	let sccClient = sccBrokerClient.attach(agServer.brokerEngine, {
 		instanceId: SCC_INSTANCE_ID,
-		instancePort: SOCKETCLUSTER_PORT,
+		instancePort: Number(SOCKETCLUSTER_PORT),
 		instanceIp: SCC_INSTANCE_IP,
 		instanceIpFamily: SCC_INSTANCE_IP_FAMILY,
 		pubSubBatchDuration: SCC_PUB_SUB_BATCH_DURATION,
 		stateServerHost: SCC_STATE_SERVER_HOST,
-		stateServerPort: SCC_STATE_SERVER_PORT,
+		stateServerPort: Number(SCC_STATE_SERVER_PORT),
+		// @ts-ignore
 		mappingEngine: SCC_MAPPING_ENGINE,
-		clientPoolSize: SCC_CLIENT_POOL_SIZE,
+		clientPoolSize: Number(SCC_CLIENT_POOL_SIZE),
 		authKey: SCC_AUTH_KEY,
 		stateServerConnectTimeout: SCC_STATE_SERVER_CONNECT_TIMEOUT,
 		stateServerAckTimeout: SCC_STATE_SERVER_ACK_TIMEOUT,
@@ -134,6 +136,6 @@ if (SCC_STATE_SERVER_HOST) {
 
 (async () => {
 	for await (let { socket } of agServer.listener("connection")) {
-		main(socket, agServer);
+		socketController.main(socket, agServer);
 	}
 })();
