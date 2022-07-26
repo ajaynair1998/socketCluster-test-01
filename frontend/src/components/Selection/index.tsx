@@ -89,10 +89,10 @@ const SingleItem = ({
 	let { data } = useSelector((store: IStore) => store.socketStore);
 	let socket = data.socket;
 
-	const handleClick = (selectedSquadPlayerId: string): any => {
+	const handleClick = async (selectedSquadPlayerId: string): Promise<any> => {
 		try {
 			if (socket && selectedSide === "selection-column") {
-				socket.emit("action-on-player", {
+				await socket.invoke("action-on-player", {
 					playerId: data.playerId,
 					roomId: data.roomId,
 					selectedSquadPlayerId: selectedSquadPlayerId,

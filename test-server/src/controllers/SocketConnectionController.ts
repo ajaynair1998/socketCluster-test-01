@@ -1,6 +1,7 @@
 import AGServer from "socketcluster-server";
 import { database } from "../db";
 import { IRoom } from "../helpers/interfaces";
+import gameController from "./gameController";
 
 const socketConnectionController = {
 	main: async (
@@ -17,12 +18,11 @@ const socketConnectionController = {
 			);
 			(async () => {
 				for await (let rpc of socket.procedure("join-game")) {
-					console.log(rpc.data);
 					let value = socket.isSubscribed("room-one");
 					console.log("is subscribed", value);
 					await agServer.exchange.transmitPublish(
 						"room-one",
-						"This is some data"
+						"you have been connected to room-one"
 					);
 					rpc.end("success");
 				}
@@ -33,10 +33,13 @@ const socketConnectionController = {
 					let { roomId, playerId, selectedSquadPlayerId } = rpc.data;
 					let value = socket.isSubscribed("channel-one");
 					console.log("is subscribed", value);
-					await agServer.exchange.transmitPublish(
-						"channel-one",
-						"This is some data"
+					await socketConnectionController.action_on_player(
+						agServer,
+						roomId,
+						playerId,
+						selectedSquadPlayerId
 					);
+					await agServer.exchange.transmitPublish(roomId, "This is some data");
 					rpc.end("success");
 				}
 			})();
@@ -124,7 +127,7 @@ const socketConnectionController = {
 				room = selectedRoom;
 				await database.set(roomId, JSON.stringify(room));
 
-				await agServer.exchange.transmitPublish("current-game-state", {
+				await agServer.exchange.transmitPublish(roomId, {
 					data: selectedRoom,
 				});
 				console.log("data sent to ", roomId);

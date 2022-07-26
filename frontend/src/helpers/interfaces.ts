@@ -1,10 +1,11 @@
 import { DefaultEventsMap } from "@socket.io/component-emitter";
 import { io, Socket } from "socket.io-client";
+import SocketClusterClient from "socketcluster-client";
 
 export interface IStore {
 	socketStore: {
 		data: {
-			socket: Socket<DefaultEventsMap, DefaultEventsMap> | undefined | null;
+			socket: SocketClusterClient.AGClientSocket | undefined | null;
 			roomId: any;
 			playerId: any;
 			playerOneSquad: any[];
