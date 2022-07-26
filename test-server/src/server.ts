@@ -8,7 +8,9 @@ import morgan from "morgan";
 import { v4 } from "uuid";
 import sccBrokerClient from "scc-broker-client";
 import { SCCBrokerClientOptions } from "scc-broker-client";
-import socketController from "./controllers/SocketConnectionController";
+import socketConnectionController from "./controllers/SocketConnectionController";
+import gameController from "./controllers/gameController";
+import { roomId } from "./helpers";
 
 const ENVIRONMENT = process.env.ENV || "dev";
 const SOCKETCLUSTER_PORT = process.env.SOCKETCLUSTER_PORT || 8000;
@@ -133,9 +135,14 @@ if (SCC_STATE_SERVER_HOST) {
 		})();
 	}
 }
-
+gameController.main({
+	agServer: agServer,
+	roomId: roomId,
+	playerOneId: "player-one",
+	playerTwoId: "player-two",
+});
 (async () => {
 	for await (let { socket } of agServer.listener("connection")) {
-		socketController.main(socket, agServer);
+		socketConnectionController.main(socket, agServer);
 	}
 })();
