@@ -1,15 +1,22 @@
-import React from "react";
+import React, { useState } from "react";
 import { Box, Button, Grid } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import BasicTextField from "../../components/BasicTextField";
 
 const Lobby = () => {
 	let navigate = useNavigate();
+
+	let [room, setRoom] = useState("");
+
 	const signInAsPlayerOne = (
 		event: React.MouseEvent<HTMLButtonElement, MouseEvent>
 	) => {
 		try {
 			event.preventDefault();
-			navigate("../player-one", { replace: false });
+			navigate("../player-one", {
+				replace: false,
+				state: { roomId: room },
+			});
 		} catch (err) {
 			console.log(err);
 		}
@@ -20,7 +27,7 @@ const Lobby = () => {
 	) => {
 		try {
 			event.preventDefault();
-			navigate("../player-two", { replace: false });
+			navigate("../player-two", { replace: false, state: { roomId: room } });
 		} catch (err) {
 			console.log(err);
 		}
@@ -43,6 +50,9 @@ const Lobby = () => {
 					>
 						Sign in as player One
 					</Button>
+				</Grid>
+				<Grid item>
+					<BasicTextField onChange={setRoom} value={room} />
 				</Grid>
 				<Grid item>
 					<Button

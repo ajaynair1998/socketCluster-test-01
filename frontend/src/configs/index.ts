@@ -1,3 +1,4 @@
+import { Location } from "react-router-dom";
 import { Manager, io } from "socket.io-client";
 import SocketClusterClient from "socketcluster-client";
 
@@ -18,3 +19,9 @@ export const socketClusterSocket = SocketClusterClient.create({
 	hostname: "localhost",
 	port: 8000,
 });
+
+export interface IState extends Omit<Location, "state"> {
+	state: {
+		roomId: string;
+	};
+}

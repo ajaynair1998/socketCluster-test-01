@@ -135,14 +135,22 @@ if (SCC_STATE_SERVER_HOST) {
 		})();
 	}
 }
-gameController.main({
-	agServer: agServer,
-	roomId: roomId,
-	playerOneId: "player-one",
-	playerTwoId: "player-two",
-});
+
 (async () => {
-	for await (let { socket } of agServer.listener("connection")) {
-		socketConnectionController.main(socket, agServer);
+	for (let i = 2; i < 100; i++) {
+		let currentRoomId = "room-" + `${i}`;
+		console.log("🚀 starting room ", currentRoomId);
+
+		gameController.main({
+			agServer: agServer,
+			roomId: currentRoomId,
+			playerOneId: "player-one",
+			playerTwoId: "player-two",
+		});
 	}
 })();
+// (async () => {
+// 	for await (let { socket } of agServer.listener("connection")) {
+// 		socketConnectionController.main(socket, agServer);
+// 	}
+// })();

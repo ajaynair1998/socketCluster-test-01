@@ -2,7 +2,7 @@ import { database } from "../db";
 import { Request, Response } from "express";
 import { IPlayer, IRoom } from "../helpers/interfaces";
 import socketConnectionController from "./SocketConnectionController";
-import { currentExactTime, delay } from "../helpers";
+import { currentExactTime, delay, roomId } from "../helpers";
 import { AGServer } from "socketcluster-server";
 
 interface IStartGameParams {
@@ -18,6 +18,45 @@ let gameController = {
 			// create the room
 			await socketConnectionController.create_room(params.roomId);
 
+			(async () => {
+				for await (let { socket } of params.agServer.listener("connection")) {
+					(async () => {
+						let roomJoiningProcess = "join-game-" + params.roomId;
+						for await (let rpc of socket.procedure(roomJoiningProcess)) {
+							let value = socket.isSubscribed(roomId);
+							console.log("is subscribed", value);
+							await params.agServer.exchange.transmitPublish(
+								roomId,
+								"you have been connected to room-one"
+							);
+							rpc.end("success");
+						}
+					})();
+
+					(async () => {
+						let channelName = params.roomId + "-action-on-player";
+						for await (let channelData of params.agServer.exchange.subscribe(
+							channelName
+						)) {
+							console.log(channelData);
+							let { roomId, playerId, selectedSquadPlayerId } = channelData;
+							let value = socket.isSubscribed("channel-one");
+							console.log("is subscribed", value);
+							await socketConnectionController.action_on_player(
+								params.agServer,
+								roomId,
+								playerId,
+								selectedSquadPlayerId
+							);
+							await params.agServer.exchange.transmitPublish(
+								roomId,
+								"This is some data"
+							);
+						}
+					})();
+				}
+			})();
+
 			for (let i = 0; i < 6; i++) {
 				await this.game_loop(params.roomId, params);
 			}
@@ -31,6 +70,12 @@ let gameController = {
 				params.roomId,
 				params
 			);
+			return gameController.main({
+				agServer: params.agServer,
+				roomId: params.roomId,
+				playerOneId: "player-one",
+				playerTwoId: "player-two",
+			});
 		} catch (err) {
 			console.log(err);
 		}

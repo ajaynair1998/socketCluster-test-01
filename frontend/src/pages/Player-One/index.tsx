@@ -2,7 +2,12 @@ import React, { useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { DefaultEventsMap } from "@socket.io/component-emitter";
 import SocketClusterClient from "socketcluster-client";
-import { createSocket, socketClusterSocket, userId } from "../../configs";
+import {
+	createSocket,
+	IState,
+	socketClusterSocket,
+	userId,
+} from "../../configs";
 import { Box, Grid } from "@mui/material";
 import Room from "../../components/Room";
 import { useDispatch, useSelector } from "react-redux";
@@ -23,9 +28,14 @@ import {
 	setTimer,
 } from "../../redux/reducers/SocketDataReducer";
 import { roomId } from "../../configs";
+import { Location, useLocation } from "react-router-dom";
 
 const PlayerOne = () => {
 	let dispatch = useDispatch();
+	let location: IState = useLocation() as IState;
+
+	let { roomId } = location.state;
+	console.log("🚀 ~ file: index.tsx ~ line 38 ~ PlayerOne ~ roomId", roomId);
 	const [socket, setSocket] = useState<
 		SocketClusterClient.AGClientSocket | undefined | null
 	>(null);
@@ -68,7 +78,8 @@ const PlayerOne = () => {
 		try {
 			(async () => {
 				let channel = socketClusterSocket.subscribe(roomId);
-				let data = await socketClusterSocket.invoke("join-game", {
+				let joinGameProcedure = "join-game-" + roomId;
+				let data = await socketClusterSocket.invoke(joinGameProcedure, {
 					data: {
 						roomId: roomId,
 					},
@@ -78,7 +89,7 @@ const PlayerOne = () => {
 				// console.log("🚀 ~ file: index.tsx ~ line 107 ~ data", data);
 
 				for await (let data of channel) {
-					// console.log("🚀 ~ file: index.jsx ~ line 33 ~ forawait ~ data", data);
+					console.log("🚀 ~ file: index.jsx ~ line 33 ~ forawait ~ data", data);
 					// ... Handle channel data
 					updateStateWithLatestData(data);
 				}

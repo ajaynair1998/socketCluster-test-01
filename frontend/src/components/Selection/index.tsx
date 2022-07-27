@@ -93,7 +93,7 @@ const SingleItem = ({
 	const handleClick = async (selectedSquadPlayerId: string): Promise<any> => {
 		try {
 			if (socket && selectedSide === "selection-column") {
-				let channelName = roomId + "-action-on-player";
+				let channelName = data.roomId + "-action-on-player";
 				await socket.transmitPublish(channelName, {
 					playerId: data.playerId,
 					roomId: data.roomId,
