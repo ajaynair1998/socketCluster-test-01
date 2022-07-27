@@ -8,6 +8,7 @@ import { ISingleItemProps } from "../Room";
 import { useSelector } from "react-redux";
 import { IStore } from "../../helpers/interfaces";
 import { setPlayerOneDisabled } from "../../redux/reducers/SocketDataReducer";
+import { roomId } from "../../configs";
 
 const Item = styled(Paper)(({ theme }) => ({
 	backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -92,7 +93,8 @@ const SingleItem = ({
 	const handleClick = async (selectedSquadPlayerId: string): Promise<any> => {
 		try {
 			if (socket && selectedSide === "selection-column") {
-				await socket.invoke("action-on-player", {
+				let channelName = roomId + "-action-on-player";
+				await socket.transmitPublish(channelName, {
 					playerId: data.playerId,
 					roomId: data.roomId,
 					selectedSquadPlayerId: selectedSquadPlayerId,

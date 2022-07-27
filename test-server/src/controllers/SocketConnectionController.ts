@@ -1,5 +1,6 @@
 import AGServer from "socketcluster-server";
 import { database } from "../db";
+import { roomId } from "../helpers";
 import { IRoom } from "../helpers/interfaces";
 import gameController from "./gameController";
 
@@ -28,9 +29,16 @@ const socketConnectionController = {
 				}
 			})();
 			(async () => {
-				for await (let rpc of socket.procedure("action-on-player")) {
-					console.log(rpc.data);
-					let { roomId, playerId, selectedSquadPlayerId } = rpc.data;
+				let channelName = roomId + "-action-on-player";
+				console.log(
+					"🚀 ~ file: SocketConnectionController.ts ~ line 49 ~ channelName",
+					channelName
+				);
+				for await (let channelData of agServer.exchange.subscribe(
+					channelName
+				)) {
+					console.log(channelData);
+					let { roomId, playerId, selectedSquadPlayerId } = channelData;
 					let value = socket.isSubscribed("channel-one");
 					console.log("is subscribed", value);
 					await socketConnectionController.action_on_player(
@@ -40,7 +48,6 @@ const socketConnectionController = {
 						selectedSquadPlayerId
 					);
 					await agServer.exchange.transmitPublish(roomId, "This is some data");
-					rpc.end("success");
 				}
 			})();
 		} catch (err) {

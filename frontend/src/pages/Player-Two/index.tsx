@@ -55,7 +55,7 @@ const PlayerTwo = () => {
 	};
 
 	useEffect(() => {
-		console.log(socket);
+		// console.log(socket);
 	}, [socket]);
 
 	useEffect(() => {
@@ -74,10 +74,11 @@ const PlayerTwo = () => {
 					},
 				});
 				setSocket(socketClusterSocket);
-				console.log("🚀 ~ file: index.tsx ~ line 107 ~ data", data);
+				dispatch(setSelectedSocket(socketClusterSocket));
+				// console.log("🚀 ~ file: index.tsx ~ line 107 ~ data", data);
 
 				for await (let data of channel) {
-					console.log("🚀 ~ file: index.jsx ~ line 33 ~ forawait ~ data", data);
+					// console.log("🚀 ~ file: index.jsx ~ line 33 ~ forawait ~ data", data);
 					// ... Handle channel data
 					updateStateWithLatestData(data);
 				}
