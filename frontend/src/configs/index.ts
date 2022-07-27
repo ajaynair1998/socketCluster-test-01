@@ -5,6 +5,7 @@ import SocketClusterClient from "socketcluster-client";
 export const password = "password";
 export const roomId = "room-one";
 export const userId = "player-one";
+export const ip = ["localhost", "13.250.106.183"];
 export const createSocket = (room?: string) => {
 	try {
 		const socket = io(`http://localhost:5050/rooms`, {});
@@ -16,7 +17,7 @@ export const createSocket = (room?: string) => {
 };
 
 export const socketClusterSocket = SocketClusterClient.create({
-	hostname: "localhost",
+	hostname: ip[1],
 	port: 8000,
 });
 

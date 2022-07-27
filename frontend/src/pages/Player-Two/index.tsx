@@ -78,12 +78,12 @@ const PlayerTwo = () => {
 		try {
 			(async () => {
 				let channel = socketClusterSocket.subscribe(roomId);
-				let joinGameProcedure = "join-game-" + roomId;
-				let data = await socketClusterSocket.invoke(joinGameProcedure, {
-					data: {
-						roomId: roomId,
-					},
-				});
+				// let joinGameProcedure = "join-game-" + roomId;
+				// let data = await socketClusterSocket.invoke(joinGameProcedure, {
+				// 	data: {
+				// 		roomId: roomId,
+				// 	},
+				// });
 				setSocket(socketClusterSocket);
 				dispatch(setSelectedSocket(socketClusterSocket));
 				// console.log("🚀 ~ file: index.tsx ~ line 107 ~ data", data);

@@ -1,0 +1,10 @@
+1.deploy the scc-state first
+2.Now we have to run broker on the same instance as the socketcluster server client (howewer many servers we like to)
+
+3.
+    main part
+
+    in the broker
+
+            1 ---> change scc state server host to the scc state's ip
+            2 ----> MOST IMPORTANT change SCC instance ip to the self instance public ip now that was confusing
