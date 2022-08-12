@@ -78,6 +78,7 @@ const PlayerOne = () => {
 		try {
 			(async () => {
 				let channel = socketClusterSocket.subscribe(roomId);
+				console.log("🚀 ~ file: index.tsx ~ line 81 ~ channel", channel);
 				// let joinGameProcedure = "join-game-" + roomId;
 				// let data = await socketClusterSocket.invoke(joinGameProcedure, {
 				// 	data: {
